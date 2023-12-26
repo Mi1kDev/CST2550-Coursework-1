@@ -1,4 +1,5 @@
 #include  <iostream>
+#include <vector>
 #ifndef _CLASSES_H
 #define _CLASSES_H
 class Person{
@@ -31,5 +32,46 @@ class Librarian : public Person{
     int getSalary();
     void setSalary(int salary);
 
+};
+
+struct Date{
+  int day;
+  int month;
+  int year;
+};
+
+class Member;
+
+class Book{
+  private:
+    int bookId;
+    std::string bookName;
+    std::string authorFirstName;
+    std::string authorLastName;
+    std::string bookType;
+    Date dueDate;
+    Member* borrower;
+  public:
+    Book(int bookId, std::string bookName, std::string authorFirstName, std::string authorLastName);
+    std::string getBookId();
+    std::string getBookName();
+    std::string getAuthorFirstName();
+    std::string getAuthorLastName();
+    Date getDueDate();
+    void setDueDate(Date dueDate);
+    void returnBook();
+    void borrowBook(Member* borrower, Date dueDate);
+};
+
+
+class Member : public Person{
+  private:
+    int memberId;
+    std::vector<Book> booksLoaned;
+  public:
+    Member(int memberId, std::string name, std::string address, std::string email);
+    std::string getMemberId();
+    std::vector<Book> getBooksBorrowed();
+    void setBooksBorrowed(Book book);
 };
 #endif

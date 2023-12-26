@@ -1,4 +1,6 @@
 #include "classes.h"
+#include <string>
+
 // Method references for Person class
 std::string Person::getName(){
   return name;
@@ -54,4 +56,55 @@ int Librarian::getSalary(){
 }
 void Librarian::setSalary(int salary){
   this->salary = salary;
+}
+
+// Method references for Member class
+
+Member::Member(int memberId, std::string name, std::string address, std::string email){
+  this->memberId = memberId;
+  this->setName(name);
+  this->setAddress(address);
+  this->setEmail(email);
+}
+std::string Member::getMemberId(){
+  return std::to_string(memberId);
+}
+std::vector<Book> Member::getBooksBorrowed(){
+  return booksLoaned;
+}
+void Member::setBooksBorrowed(Book book){
+
+}
+
+// Method references for Book class
+
+Book::Book(int bookId, std::string bookName, std::string authorFirstName, std::string authorLastName){
+  this->bookId = bookId;
+  this->bookName = bookName;
+  this->authorFirstName = authorFirstName;
+  this->authorLastName = authorLastName;
+}
+std::string Book::getBookId(){
+  return std::to_string(bookId);
+}
+std::string Book::getBookName(){
+  return bookName;
+}
+std::string Book::getAuthorFirstName(){
+  return authorFirstName;
+}
+std::string Book::getAuthorLastName(){
+  return authorLastName;
+}
+Date Book::getDueDate(){
+  return dueDate;
+}
+void Book::setDueDate(Date dueDate){
+  this->dueDate = dueDate;
+}
+void Book::returnBook(){
+
+}
+void Book::borrowBook(Member* borrower, Date dueDate){
+
 }
