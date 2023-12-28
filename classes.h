@@ -15,14 +15,15 @@ class Person{
     std::string getEmail();
     void setEmail(std::string email);
 };
-
+class Member;
 class Librarian : public Person{
   private:
     int staffId;
     int salary;
   public:
     Librarian(int staffId, std::string name, std::string address, std::string email, int salary);
-    void addMember();
+    // Edited from UML
+    void addMember(std::vector<Member *> *memberList);
     void issueBook(int memberId, int bookId);
     void returnBook(int memberId, int bookId);
     void displayBorrowedBooks(int memberId);
@@ -39,8 +40,6 @@ struct Date{
   int month;
   int year;
 };
-
-class Member;
 
 class Book{
   private:

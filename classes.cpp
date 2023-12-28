@@ -1,5 +1,7 @@
 #include "classes.h"
 #include <string>
+#include <regex>
+#include <vector>
 
 // Method references for Person class
 std::string Person::getName(){
@@ -30,8 +32,74 @@ Librarian::Librarian(int staffId, std::string name, std::string address, std::st
   this->setEmail(email);
   this->setSalary(salary);
 }
-void Librarian::addMember(){
+// Edited from UML
+void Librarian::addMember(std::vector<Member *> *memberList){
+  std::cout << "[ Enter the information of the new member ]\n";
 
+  std::string mName, mAddress, mEmail, opt;
+  bool validated = false;
+  while(!validated){
+    while(true){
+      std::cout << "Enter Name: ";
+      std::getline(std::cin, mName);
+      if(mName.length() > 0){
+        break;
+      }else{
+        std::cout << "Name must contain at least a single character\n\n";
+      }
+    }
+    while(true){
+      std::cout << "Enter Address: ";
+      std::getline(std::cin, mAddress);
+      if(mAddress.length() > 0){
+        break;
+      }else{
+        std::cout << "Address must contain at least a single character\n\n";
+      }
+    }
+
+    while(true){
+      std::cout << "Enter Email: ";
+      std::getline(std::cin, mEmail);
+
+      //Pattern  might not fully  work
+      std::regex emailPattern("[a-zA-Z0-9](.+)(@){1}[a-zA-Z0-9](.+)((.){1}[a-zA-Z](.+))(.+)");
+      if(!regex_match(mEmail, emailPattern)){
+        std::cout << "Invalid format for email\nReprompting...\n\n";
+      }else{
+        break;
+      }
+    }
+    std::cout << std::endl;
+    std::cout << "The member's details are:\n";
+    std::cout << "Name: " << mName << std::endl;
+    std::cout << "Address: " << mAddress << std::endl;
+    std::cout << "Email: " << mEmail << std::endl;
+
+    while(true){
+      std::cout << "Are you sure this information is correct? [YES] or [NO]: ";
+      std::getline(std::cin, opt);
+      if(opt == "YES"){
+        validated = true;
+        break;
+      }else if(opt == "NO"){
+        std::cout << std::endl;
+        break;
+      }else{
+        std::cout << "Invalid option selected. Either check that your input is spelt correctly or provide the correct input.\n\n";
+      }
+    }
+  }
+  int mId;
+  mId = memberList->size();
+  std::cout << std::endl;
+  std::cout << "[ Member Details ]\n";
+  std::cout << "ID #: " << mId << std::endl;
+  std::cout << "NAME: " << mName << std::endl;
+  std::cout << "ADDRESS: " << mAddress << std::endl;
+  std::cout << "EMAIL: " << mEmail << std::endl;
+  Member * member = new Member(mId, mName, mAddress, mEmail);
+  memberList->push_back(member);
 }
 void Librarian::issueBook(int memberId, int bookId){
 
@@ -73,7 +141,7 @@ std::vector<Book> Member::getBooksBorrowed(){
   return booksLoaned;
 }
 void Member::setBooksBorrowed(Book book){
-
+  this->booksLoaned.push_back(book);
 }
 
 // Method references for Book class
