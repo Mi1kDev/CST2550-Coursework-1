@@ -154,9 +154,13 @@ std::string initialize(){
     }else if(opt == "START"){
       std::string filepath;
       while(true){
-        std::cout << "Please enter the file path to load books from: ";
+        std::cout << "Please enter the file path to load books from or [EXIT] to leave: ";
         std::cin >> filepath;
         std::cin.ignore();
+        if(filepath == "EXIT"){
+          std::cout << "Terminating program...";
+          exit(0);
+        }
         std::ifstream file(filepath);
         if(file){
           file.close();
@@ -288,6 +292,8 @@ int main(){
         bookIssuing(&librarian, &memberList, &bookList);
       }else if(opt == 4){
         displayMembersBooks(&librarian, &memberList);
+      }else if(opt == 5){
+        librarian.calcFine(0, &memberList);
       }else if(opt == 6){
         std::cout << "Exiting..." << std::endl;
         active = false;

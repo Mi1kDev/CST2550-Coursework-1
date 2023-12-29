@@ -149,9 +149,12 @@ void Librarian::issueBook(int memberId, int bookId, std::vector<Member *> *membe
   issueDate.year = (now->tm_year + 1900);
   issueDate.month = (now->tm_mon + 1);
   issueDate.day = (now->tm_mday);
+  issueDate.timestamp = t;
   dueDate.day = issueDate.day + 3;
   dueDate.year = issueDate.year;
   dueDate.month = issueDate.month;
+  int dayInSeconds = 86400;
+  dueDate.timestamp = t + (dayInSeconds * 3);
   if(dueDate.day > month[issueDate.month - 1]){
     dueDate.day = dueDate.day % month[issueDate.month - 1];
     dueDate.month++;
@@ -173,6 +176,10 @@ void Librarian::returnBook(int memberId, int bookId){
 }
 void Librarian::displayBorrowedBooks(int memberId, std::vector<Member *> *memberList){
   int memberIdx;
+  if(memberList->size() <= 0){
+    std::cout << "No members available yet\n";
+    return;
+  }
   for(int i = 0; i < memberList->size(); i++){
     if(std::to_string(memberId) == (*memberList)[i]->getMemberId()){
       memberIdx = i;
@@ -201,7 +208,49 @@ void Librarian::displayBorrowedBooks(int memberId, std::vector<Member *> *member
   }
 
 }
-void Librarian::calcFine(int memberId){
+void Librarian::calcFine(int memberId, std::vector<Member *> *memberList){
+  int foundIdx;
+  std::cout << std::endl;
+  if(memberList->size() <= 0){
+    std::cout << "No members available yet\n";
+    return;
+  }
+  for(int i = 0; i < memberList->size(); i++){
+    if(std::to_string(memberId) == (*memberList)[i]->getMemberId()){
+      foundIdx = i;
+      break;
+    }
+    if(i == memberList->size() - 1){
+      std::cout << "The provided member ID {" << memberId << "} does not exist\n";
+      return;
+    }
+  }
+
+  std::vector<Book> loanedBooks = (*memberList)[foundIdx]->getBooksBorrowed();
+  if(loanedBooks.size() <= 0){
+    std::cout << "This member has no books on loan at the moment\n";
+    return;
+  }
+  int totalFines = 0;
+  int secondsPerDay = 86400;
+  std::time_t t = std::time(0);
+  for(int i = 0; i < loanedBooks.size(); i++){
+      std::time_t t2 = loanedBooks[i].getDueDate().timestamp;
+      double timeDiff = std::difftime(t, t2) / secondsPerDay;
+      if(timeDiff > 0){
+        std::cout << "Book ID#: " << loanedBooks[i].getBookId() << std::endl;
+        std::cout << "Book NAME: " << loanedBooks[i].getBookName() << std::endl;
+        int fines = 1 * (int)timeDiff;
+        std::cout << "FINES: £" << fines << std::endl;
+        totalFines += fines;
+      }
+  }
+  if(totalFines == 0){
+    std::cout << "No calculated fines as there are no overdue and outstanding books\n";
+  }else{
+    std::cout << "TOTAL FINES: £" << totalFines << std::endl;
+  }
+
 
 }
 int Librarian::getStaffId(){

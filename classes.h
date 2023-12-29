@@ -1,5 +1,6 @@
 #include  <iostream>
 #include <vector>
+#include <ctime>
 #ifndef _CLASSES_H
 #define _CLASSES_H
 class Person{
@@ -28,7 +29,7 @@ class Librarian : public Person{
     void issueBook(int memberId, int bookId, std::vector<Member *> *memberList, std::vector<Book *> *bookList);
     void returnBook(int memberId, int bookId);
     void displayBorrowedBooks(int memberId, std::vector<Member *> *memberList);
-    void calcFine(int memberId);
+    void calcFine(int memberId, std::vector<Member *> *memberList);
     int getStaffId();
     void setStaffId(int staffId);
     int getSalary();
@@ -40,6 +41,7 @@ struct Date{
   int day;
   int month;
   int year;
+  time_t timestamp;
 };
 
 class Book{
