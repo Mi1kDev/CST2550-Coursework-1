@@ -13,24 +13,33 @@ std::vector<Book *> loadBooks(std::string filepath){
   if(BookList.is_open()){
     getline(BookList, content);
     int count = 1;
-    while(BookList){
-      getline(BookList, content);
-      std::stringstream ss(content);
-      std::string temp;
-      std::string bookProperties[7];
-      int i = 0;
-      while(getline(ss, temp, ',')){
-        bookProperties[i] = temp;
-        i++;
+    try{
+      while(BookList){
+        getline(BookList, content);
+        std::stringstream ss(content);
+        if(content.length() <= 0 && count == 1){
+          throw 100;
+        }
+        if(content.length() > 0){
+          std::string temp;
+          std::string bookProperties[7];
+          int i = 0;
+          while(getline(ss, temp, ',')){
+            bookProperties[i] = temp;
+            if(bookProperties[i].length() <= 0){
+              throw 100;
+            }
+            i++;
+          }
+          books.push_back(new Book(count, bookProperties[1], bookProperties[3], bookProperties[4]));
+          count++;
+        }
       }
-      try{
-        //stoi not working for some reason
-        books.push_back(new Book(count, bookProperties[1], bookProperties[3], bookProperties[4]));
-      }catch(std::string id){
-        std::cout << "Cause of Error " << id;
-      }
-      count++;
+    }catch(...){
+      std::cout << "Please check the format of the input datafile.";
+      exit(0);
     }
+    BookList.close();
   }
   std::cout << "Books have been loaded successfully" << std::endl;
   return books;
@@ -177,6 +186,7 @@ void addMember(Librarian *librarian, std::vector<Member *> *memberList){
         continueAdding = false;
         break;
       }else if(memberContinue == "YES"){
+        std::cout << std::endl;
         break;
       }else{
         std::cout << "Invalid Option selected\n\n";
@@ -189,6 +199,7 @@ void bookIssuing(Librarian *librarian, std::vector<Member *> *memberList, std::v
   std::string memberIdStr, bookIdStr;
   std::regex integerPattern("[0-9]+");
   bool valid = false;
+  std::cout << std::endl;
   while(!valid){
     while(true){
       std::cout << "Please enter the member id the book is being issued to: ";
@@ -210,21 +221,56 @@ void bookIssuing(Librarian *librarian, std::vector<Member *> *memberList, std::v
         break;
       }
     }
+    librarian->issueBook(memberId, bookId, memberList, bookList);
     while(true){
       std::string opt;
-      std::cout << "Are you sure this information is correct? [YES] or [NO]: ";
+      std::cout << "Would you like to issue another book? [YES] or [NO]: ";
       std::cin >> opt;
       if(opt == "YES"){
-        valid = true;
+        std::cout << std::endl;
         break;
       }else if(opt == "NO"){
+        valid = true;
         break;
       }else{
         std::cout << "Invalid Option selected\n\n";
       }
     }
   }
-  librarian->issueBook(memberId, bookId, memberList, bookList);
+}
+void displayMembersBooks(Librarian * librarian, std::vector<Member *> *memberList){
+  std::string memberIdStr;
+  int memberId;
+  std::regex integerPattern("[0-9]+");
+  bool valid = false;
+  std::string opt;
+  while(!valid){
+    while(true){
+      std::cout << "Please enter the ID # of the member: ";
+      std::cin >> memberIdStr;
+
+      if(!std::regex_match(memberIdStr, integerPattern)){
+        std::cout << "ID # must be an integer";
+      }else{
+        memberId = stoi(memberIdStr);
+        break;
+      }
+    }
+    librarian->displayBorrowedBooks(memberId, memberList);
+    while(true){
+      std::cout << "Would you like to search another ID #? [YES] or [NO]: ";
+      std::cin >> opt;
+      if(opt == "YES"){
+        std::cout << std::endl;
+        break;
+      }else if(opt == "NO"){
+        valid = true;
+        break;
+      }else{
+        std::cout << "Invalid Option was selected";
+      }
+    }
+  }
 }
 int main(){
   std::string bookFilePath = initialize();
@@ -240,6 +286,8 @@ int main(){
         addMember(&librarian, &memberList);
       }else if(opt == 2){
         bookIssuing(&librarian, &memberList, &bookList);
+      }else if(opt == 4){
+        displayMembersBooks(&librarian, &memberList);
       }else if(opt == 6){
         std::cout << "Exiting..." << std::endl;
         active = false;

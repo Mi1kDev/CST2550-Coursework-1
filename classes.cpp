@@ -165,13 +165,40 @@ void Librarian::issueBook(int memberId, int bookId, std::vector<Member *> *membe
 
   std::cout << "Book ID#: " << issuedBook.getBookId() << ", issued to Member ID#: " << memberId <<
   " on the Date (dd-mm-yyyy): " << issueDate.day << "-" << issueDate.month << "-" << issueDate.year
-  << "Due by (dd-mm-yyyy): " << dueDate.day << "-" << dueDate.month << "-" << dueDate.year;
+  << std::endl << "Due by (dd-mm-yyyy): " << dueDate.day << "-" << dueDate.month << "-" << dueDate.year;
   std::cout << std::endl;
 }
 void Librarian::returnBook(int memberId, int bookId){
 
 }
-void Librarian::displayBorrowedBooks(int memberId){
+void Librarian::displayBorrowedBooks(int memberId, std::vector<Member *> *memberList){
+  int memberIdx;
+  for(int i = 0; i < memberList->size(); i++){
+    if(std::to_string(memberId) == (*memberList)[i]->getMemberId()){
+      memberIdx = i;
+      break;
+    }
+    if(i == memberList->size() - 1){
+      std::cout <<  "The provided member id {" << memberId << "} does not exist.";
+      return;
+    }
+  }
+
+  std::cout << "NAME: " << (*memberList)[memberIdx]->getName() << std::endl;
+  std::cout << "ADDRESS: " << (*memberList)[memberIdx]->getAddress() << std::endl;
+  std::cout << "EMAIL: " << (*memberList)[memberIdx]->getEmail() << std::endl;
+
+  std::vector<Book> loanedBooks = (*memberList)[memberIdx]->getBooksBorrowed();
+  if(loanedBooks.size() <= 0){
+    std::cout << "This member has not borrowed any books as of yet.\n";
+  }
+  for(int i = 0; i < loanedBooks.size(); i++){
+    std::cout << "[Book " << (i+1) << "]" << std::endl;
+    std::cout << "BOOK NAME: " << loanedBooks[i].getBookName() << std::endl;
+    std::cout << "AUTHOR NAME: " << loanedBooks[i].getAuthorFirstName() << " " << loanedBooks[i].getAuthorLastName() << std::endl;
+    Date dueDate = loanedBooks[i].getDueDate();
+    std::cout << "DUE DATE (dd-mm-yyyy): " << dueDate.day << "-" << dueDate.month << "-" << dueDate.year << std::endl;
+  }
 
 }
 void Librarian::calcFine(int memberId){

@@ -27,7 +27,7 @@ class Librarian : public Person{
     void addMember(std::vector<Member *> *memberList);
     void issueBook(int memberId, int bookId, std::vector<Member *> *memberList, std::vector<Book *> *bookList);
     void returnBook(int memberId, int bookId);
-    void displayBorrowedBooks(int memberId);
+    void displayBorrowedBooks(int memberId, std::vector<Member *> *memberList);
     void calcFine(int memberId);
     int getStaffId();
     void setStaffId(int staffId);
