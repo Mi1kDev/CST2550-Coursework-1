@@ -16,6 +16,7 @@ class Person{
     void setEmail(std::string email);
 };
 class Member;
+class Book;
 class Librarian : public Person{
   private:
     int staffId;
@@ -24,7 +25,7 @@ class Librarian : public Person{
     Librarian(int staffId, std::string name, std::string address, std::string email, int salary);
     // Edited from UML
     void addMember(std::vector<Member *> *memberList);
-    void issueBook(int memberId, int bookId);
+    void issueBook(int memberId, int bookId, std::vector<Member *> *memberList, std::vector<Book *> *bookList);
     void returnBook(int memberId, int bookId);
     void displayBorrowedBooks(int memberId);
     void calcFine(int memberId);

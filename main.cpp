@@ -39,7 +39,7 @@ Librarian  createLibrarian(){
   int staffId, salary;
   std::string name, address, email;
   bool validated = false;
-  std::cout << "Please enter the details of the current Librarian" << std::endl;
+  std::cout << "[ Please enter the details of the current Librarian ]" << std::endl;
   while(!validated){
     while(true){
       std::cout << "Name: ";
@@ -120,14 +120,14 @@ int displayMenu(){
   std::cout << "6. Exit" << std::endl;
 
   std::string selection;
-  std::regex integerPattern("[1-6]+");
+  std::regex integerPattern("[1-6]{1}");
 
   while(true){
     std::cout << "Please select an option: ";
     std::cin >> selection;
     std::cin.ignore();
     if(!regex_match(selection, integerPattern)){
-      std::cout << "Invalid selection made";
+      std::cout << "Invalid selection made\n\n";
     }else{
       return std::stoi(selection);
     }
@@ -163,6 +163,69 @@ std::string initialize(){
   }
   return "";
 }
+void addMember(Librarian *librarian, std::vector<Member *> *memberList){
+  std::cout << std::endl;
+  bool continueAdding = true;
+  std::string memberContinue;
+  while(continueAdding){
+    librarian->addMember(memberList);
+    while(true){
+      std::cout << "Would you like to add another member? [YES] or [NO]: ";
+      std::cin >> memberContinue;
+      std::cin.ignore();
+      if(memberContinue == "NO"){
+        continueAdding = false;
+        break;
+      }else if(memberContinue == "YES"){
+        break;
+      }else{
+        std::cout << "Invalid Option selected\n\n";
+      }
+    }
+  }
+}
+void bookIssuing(Librarian *librarian, std::vector<Member *> *memberList, std::vector<Book *> *bookList){
+  int memberId, bookId;
+  std::string memberIdStr, bookIdStr;
+  std::regex integerPattern("[0-9]+");
+  bool valid = false;
+  while(!valid){
+    while(true){
+      std::cout << "Please enter the member id the book is being issued to: ";
+      std::cin >> memberIdStr;
+      if(!std::regex_match(memberIdStr, integerPattern)){
+        std::cout << "ID must be an integer\n\n";
+      }else{
+        memberId = stoi(memberIdStr);
+        break;
+      }
+    }
+    while(true){
+      std::cout << "Please enter the book id of the book being issued: ";
+      std::cin >> bookIdStr;
+      if(!std::regex_match(bookIdStr, integerPattern)){
+        std::cout << "ID must be an integer\n\n";
+      }else{
+        bookId = stoi(bookIdStr);
+        break;
+      }
+    }
+    while(true){
+      std::string opt;
+      std::cout << "Are you sure this information is correct? [YES] or [NO]: ";
+      std::cin >> opt;
+      if(opt == "YES"){
+        valid = true;
+        break;
+      }else if(opt == "NO"){
+        break;
+      }else{
+        std::cout << "Invalid Option selected\n\n";
+      }
+    }
+  }
+  librarian->issueBook(memberId, bookId, memberList, bookList);
+}
 int main(){
   std::string bookFilePath = initialize();
   std::vector<Book *> bookList = loadBooks(bookFilePath);
@@ -174,7 +237,9 @@ int main(){
     std::cout << std::endl;
       opt = displayMenu();
       if(opt == 1){
-        librarian.addMember(&memberList);
+        addMember(&librarian, &memberList);
+      }else if(opt == 2){
+        bookIssuing(&librarian, &memberList, &bookList);
       }else if(opt == 6){
         std::cout << "Exiting..." << std::endl;
         active = false;
