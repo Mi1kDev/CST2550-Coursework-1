@@ -9,6 +9,8 @@ std::vector<Book *> loadBooks(std::string filepath){
   std::vector<Book *> books;
   std::string content;
   std::ifstream BookList;
+  std::regex quotePattern(R"("+[a-zA-Z0-9, ]+")");
+  std::smatch m;
   BookList.open(filepath);
   if(BookList.is_open()){
     getline(BookList, content);
@@ -16,11 +18,22 @@ std::vector<Book *> loadBooks(std::string filepath){
     try{
       while(BookList){
         getline(BookList, content);
-        std::stringstream ss(content);
+
         if(content.length() <= 0 && count == 1){
           throw 100;
         }
         if(content.length() > 0){
+          std::regex_search(content, m, quotePattern);
+          std::string edited;
+          int j, tally;
+          if(m.size() > 0){
+            for(std::string x: m){
+              edited = std::regex_replace(x, std::regex(","), "");
+              content = std::regex_replace(content, std::regex(x), edited);
+            }
+          }
+
+          std::stringstream ss(content);
           std::string temp;
           std::string bookProperties[7];
           int i = 0;
