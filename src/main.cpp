@@ -2,52 +2,56 @@
   main.cpp
   Author: M00829986
   Created: 28/12/2024
-  Updated: 1/11/2024
+  Updated: 12/1/2024
 */
-#include "classes.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <regex>
+#include "librarian.h"
+#include "book.h"
+#include "member.h"
 
 void clearScreen();
 
-// Reads data from a provided csv file and creates a list of books using the provided data
+/*
+  Clears the console
+*/
+void clearScreen(){
+  std::cout << "\033[2J\033[1;1H";
+}
+
+/*
+  Loads books from a provided file into a vector of Book classes
+  @param filepath path to source file which contains data of all books
+  @return books a list of all the books read from the source file
+*/
 std::vector<Book*> loadBooks(std::string filepath){
-  // Initialization of book vector
   std::vector<Book *> books;
   std::string content;
-  // Input stream used to read from a file
   std::ifstream BookList;
-  // Regex to check for data stored in between quotes
+  // Pattern to check whether a section of string is within quotation marks
   std::regex quotePattern(R"("+[a-zA-Z0-9, ]+")");
   std::smatch m;
-  // Opens the csv file
   BookList.open(filepath);
   if(BookList.is_open()){
-    // Done to skip the first line of data which is usually headers of the file
+    // Skips first line of file. In CSVs this is usually titles and headings
     getline(BookList, content);
     int count = 1;
     try{
-      // Loops through file until reaching EOF
       while(BookList){
-        // Get line from the file
         getline(BookList, content);
-        // If the first line is empty then it assumes the file is empty
         if(content.length() <= 0 && count == 1){
-          // Throw an error
           throw 100;
         }
-        // If the line has content in it then the following takes place
         if(content.length() > 0){
-          // Checks whether there exists a section of string matching the quotation regex pattern
+          // Checks if there exists any section of the string matching the quotation pattern
           std::regex_search(content, m, quotePattern);
           std::string edited;
           int j, tally;
-          // If a match for the regex search is found then the following takes place
           if(m.size() > 0){
-            // Loops through all matches in the line and replaces the line with a version with removed commas
+            // Replaces all commas in those quotation mark sections with an empty string and then replaces the quotation mark section with the edited string
             for(std::string x: m){
               edited = std::regex_replace(x, std::regex(","), "");
               content = std::regex_replace(content, std::regex(x), edited);
@@ -57,32 +61,29 @@ std::vector<Book*> loadBooks(std::string filepath){
           std::string temp;
           std::vector<std::string> bookProperties;
           int i = 0;
-          // Splits the line using the , delimiter
+          // Splits line by , and stores each property into a vector for Book creation
           while(getline(ss, temp, ',')){
-            // Each part of the split line is stored in a vector
             bookProperties.push_back(temp);
-            // Error is thrown if the line element is empty
             if(bookProperties[i].length() <= 0){
               throw 100;
             }
             i++;
           }
-          // Constructs a new book class and adds it to the books vector
           books.push_back(new Book(stoi(bookProperties[0]), bookProperties[1], bookProperties[3], bookProperties[4]));
           count++;
         }
       }
     }catch(...){
-      // Error message displayed if the format of the datafile is incorrect
       std::cout << "Please check the format of the input datafile.";
       exit(0);
     }
-    // Closes file
     BookList.close();
   }
+
+  // Displays all books read from the file
   std::cout << "The following books were loaded." << std::endl;
   std::cout << std::endl << "ID: BOOKNAME" << std::endl;
-  for(Book *b : books){
+  for(Book* b : books){
     std::cout << b->getBookId() << ": " << b->getBookName() << std::endl;
   }
   std::cout << "Enter any key to continue: ";
@@ -90,44 +91,48 @@ std::vector<Book*> loadBooks(std::string filepath){
   clearScreen();
   return books;
 }
-void clearScreen(){
-  std::cout << "\033[2J\033[1;1H";
-}
-// Allows the user to create a librarian class by providing necessary input
+
+/*
+  Creates a Librarian class using details provided by the user
+  @return l1 instance of Librarian class
+*/
 Librarian  createLibrarian(){
   int staffId, salary;
   std::string name, address, email, dump;
+  std::regex namePattern("[a-zA-Z -]+");
+  std::regex addressPattern("[a-zA-Z0-9 -]+");
+  std::regex emailPattern("[a-zA-Z0-9](.+)(@){1}[a-zA-Z0-9](.+)((.){1}[a-zA-Z](.+))(.+)");
   bool validated = false;
   bool nameValid = false, addressValid = false, emailValid = false, idValid = false, salaryValid = false;
   std::cout << "[ Please enter the details of the current Librarian ]" << std::endl;
-  // Will loop until all input is considered validated
   std::cin;
+
+  // Loop used to allow user to confirm that their inputted information is correct
   while(!validated){
-    // Allows the user to enter the librarian's name
+    // Checks that entered name is of valid format
     while(!nameValid){
       std::cout << "Name: ";
       std::getline(std::cin, name);
-      if(name.length() > 0){
+      if(std::regex_match(name, namePattern)){
         nameValid = true;
       }else{
-        std::cout << "Name must contain at least a single character\n\n";
+        std::cout << "Name must consist of only alphabet characters and hyphens\n\n";
       }
     }
-    // Allows the user to enter the librarian's address
+    // Checks that entered address is of valid format
     while(!addressValid){
       std::cout << "Address: ";
       std::getline(std::cin, address);
-      if(address.length() > 0){
+      if(std::regex_match(address, addressPattern)){
         addressValid = true;
       }else{
-        std::cout << "Address must contain at least a single character\n\n";
+        std::cout << "Address must contain at least a single alphanumeric character\n\n";
       }
     }
-    // Allows the user to enter the librarian's email
+    // Checks that entered email is of valid format
     while(!emailValid){
       std::cout << "Email: ";
       std::getline(std::cin, email);
-      std::regex emailPattern("[a-zA-Z0-9](.+)(@){1}[a-zA-Z0-9](.+)((.){1}[a-zA-Z](.+))(.+)");
       if(!regex_match(email, emailPattern)){
         std::cout << "Invalid format for email\n\n";
       }else{
@@ -137,7 +142,8 @@ Librarian  createLibrarian(){
     std::string salaryStr, staffIdStr;
     // Regex pattern to determine whether provided input is an integer or not
     std::regex integerPattern("[0-9]+");
-    // Allows the user to enter the librarian's id
+
+    // Checks that entered id is an integer
     while(!idValid){
       std::cout << "ID #: ";
       std::cin >> staffIdStr;
@@ -150,12 +156,12 @@ Librarian  createLibrarian(){
         idValid = true;
       }
     }
-    // Allows the user to enter the librarian's salary
+
+    // Checks that entered salary is an integer
     while(!salaryValid){
       std::cout << "Salary: ";
       std::cin >> salaryStr;
       std::cin.ignore();
-      // If the input is not an integer then an error message is displayed
       if(!regex_match(salaryStr, integerPattern)){
         std::cout << "Input must be an integer \n\n";
       }else{
@@ -190,7 +196,11 @@ Librarian  createLibrarian(){
   Librarian l1(staffId, name, address, email, salary);
   return l1;
 }
-// Displays menu for user to interact with
+
+/*
+  Displays the menu providing the user all the options and operations they can perform
+  @return selection (as int) the option selected by the user
+*/
 int displayMenu(){
   std::cout << "1. Add Member" << std::endl;
   std::cout << "2. Issue Book" << std::endl;
@@ -216,7 +226,11 @@ int displayMenu(){
   }
   return 0;
 }
-// Start of program
+
+/*
+  Program start. Provides options to exit the program. Accepts path to file where books will be loaded from
+  @return filepath Path to file where books will be loaded from
+*/
 std::string initialize(){
   bool promptingStart = true;
   while(promptingStart){
@@ -260,17 +274,21 @@ std::string initialize(){
   }
   return "";
 }
-// Adds a member to the member list
+
+/*
+  Wrapper function for the Librarian method addMember. Allows for quick, repeated execution of the function
+  @param librarian reference to the librarian class instance throughout the program
+  @param memberlist list of all members in the system
+*/
 void addMember(Librarian* librarian, std::vector<Member*>* memberList){
   std::cout << std::endl;
   bool continueAdding = true, optionSelected;
   std::string memberContinue;
-  // Loops until the user says they do not wish to add another member
+  // Allows the user to continue adding members until they select NO
   while(continueAdding){
-    // Calls the addMember method of the librarian class
     librarian->addMember(memberList);
     optionSelected = false;
-    // Asks the user to select either YES or NO
+    // Asks the user to select either YES or NO, reprompts if given invalid input
     while(!optionSelected){
       std::cout << "Would you like to add another member? [YES] or [NO]: ";
       std::cin >> memberContinue;
@@ -279,7 +297,7 @@ void addMember(Librarian* librarian, std::vector<Member*>* memberList){
       if(memberContinue == "NO"){
         continueAdding = false;
         optionSelected = true;
-      // If the user selects YES then the loop continues
+      // If the user selects YES then the loop continues and the user can create another member
       }else if(memberContinue == "YES"){
         std::cout << std::endl;
         optionSelected = true;
@@ -291,7 +309,14 @@ void addMember(Librarian* librarian, std::vector<Member*>* memberList){
   }
 }
 
+/*
+  Helper function used to determine if a member with a provided id exists in the system
+  @param memberList list of all members in the system
+  @param id member id to search for
+  @return [true|false] depending on whether a match for the id was found or not
+*/
 bool findIdMember(std::vector<Member*>* memberList, int id){
+  // Attempts to find the id inside the list of members, returns a true value if it does, otherwise returns false
   for(int i = 0; i < memberList->size(); i++){
     if(id == stoi((*memberList)[i]->getMemberId())){
       return true;
@@ -300,7 +325,14 @@ bool findIdMember(std::vector<Member*>* memberList, int id){
   return false;
 }
 
+/*
+  Helper function used to determine if a book with a provided id exists in the system
+  @param bookList list of all books loaded in the system
+  @param id book id to search for
+  @return [true|false] depending on whether id was found or not
+*/
 bool findBookId(std::vector<Book*>* bookList, int id){
+    // Attempts to find the id inside the list of books, returns a true value if it does, otherwise returns false
   for(int i = 0; i < bookList->size(); i++){
     if(id == stoi((*bookList)[i]->getBookId())){
       return true;
@@ -309,9 +341,14 @@ bool findBookId(std::vector<Book*>* bookList, int id){
   return false;
 }
 
+/*
+  Helper function asking user if they would like to re-enter an id if one was previously not found
+  @return confirmation boolean reflecting the choice made by the user
+*/
 bool inputReprompt(){
   std::string select;
   bool confirmation = false;
+  // Asks user whether they would like to be prompted for re-entry
   while(!confirmation){
     std:: cout << "The provided id number was not found." << std::endl;
     std::cout << "Would you like to enter another id? [YES] or [NO]: ";
@@ -328,6 +365,12 @@ bool inputReprompt(){
   return confirmation;
 }
 
+/*
+  Wrapper function for Librarian class's returnBook method. Ensures data is valid before being used
+  @param librarian reference to Librarian instance used throughout system
+  @param memberList list of all members in the system
+  @param bookList list of all books loaded in the system
+*/
 void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   std::cout << std::endl;
   bool continueReturning = true;
@@ -338,6 +381,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
   std::string select;
   int memberId, bookId;
 
+  // Stops the function if either there are no members or there are no books
   if(memberList->size() <= 0){
     std::cout << "There are currently no members in the system, therefore books cannot be returned\n\n";
     return;
@@ -347,7 +391,9 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
     return;
   }
 
+  // Allows for repeated book returns until stopped by the user
   while(continueReturning){
+    // Ensures the memberId entered is of valid format and exists in the list of members
     while(!memberIdValid){
       std::cout << "Please enter the id number of the member returning a book: ";
       std::cin >> memberIdStr;
@@ -365,6 +411,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
         }
       }
     }
+    // Ensures the bookId entered is of valid format and exists in the list of books
     while(!bookIdValid){
       std::cout << "Please enter the id number of the book being returned: ";
       std::cin >> bookIdStr;
@@ -383,6 +430,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
     }
     librarian->returnBook(memberId, bookId, memberList, bookList);
     optionSelected = false;
+    // Provides the user with the option to continue returning books
     while(!optionSelected){
       std::cout << "Would you like to return another book? [YES] or [NO]: ";
       std::cin >> option;
@@ -400,7 +448,13 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
     }
   }
 }
-// Issues a book to a member
+
+/*
+  Wrapper function for Librarian class's issueBook method. Ensures data is validated
+  @param librarian reference to Librarian instance used throughout system
+  @param memberList list of all members stored in the system
+  @param bookList list of all books loaded in the system
+*/
 void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   int memberId, bookId;
   std::string memberIdStr, bookIdStr;
@@ -408,6 +462,8 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
   bool valid = false;
   bool bookIdValid = false, memberIdValid = false;
   std::cout << std::endl;
+
+  // If there are no members or no books then the function ends
   if(memberList->size() <= 0){
     std::cout << "There are currently no members in the system, therefore books cannot be issued\n\n";
     return;
@@ -416,17 +472,16 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
     std::cout << "No books available to be issued.\n\n";
     return;
   }
-  // Loops until all inputs are validated
+
+  // Allows user to issue books repeatedly until stopped by user
   while(!valid){
-    // Asks the user to enter the member id of the member the book is being issued to
+    // Asks the user to enter the member id of the member the book is being issued to. Ensures the input is of valid format and that the memberId exists in the memberList
     while(!memberIdValid){
       std::cout << "Please enter the member id the book is being issued to: ";
       std::cin >> memberIdStr;
-      // If the input is not an integer then an error message is displayed and the user is reprompted for input
       if(!std::regex_match(memberIdStr, integerPattern)){
         std::cout << "ID must be an integer\n\n";
       }else{
-        // Converts the input into an integer value
         memberId = stoi(memberIdStr);
         if(findIdMember(memberList, memberId)){
           memberIdValid = true;
@@ -437,15 +492,13 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
         }
       }
     }
-    // Asks the user to enter the if og the book that is to be issued
+    // Asks the user to enter the id of the book being issued. Ensures the input is of valid format and that the bookId exists in the bookList
     while(!bookIdValid){
       std::cout << "Please enter the book id of the book being issued: ";
       std::cin >> bookIdStr;
-      // If the input is an integer then an error message is displayed and the user is reprompted for input
       if(!std::regex_match(bookIdStr, integerPattern)){
         std::cout << "ID must be an integer\n\n";
       }else{
-        // Converts the input into an integer value
         bookId = stoi(bookIdStr);
         if(findBookId(bookList, bookId)){
           bookIdValid = true;
@@ -456,10 +509,12 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
         }
       }
     }
+
     // Executes the issueBook method of the librarian class
     librarian->issueBook(memberId, bookId, memberList, bookList);
-    // Asks the user whether they would like to issue another book
     bool optionSelected = false;
+
+    // Asks the user whether they would like to issue another book
     while(!optionSelected){
       std::string opt;
       std::cout << "Would you like to issue another book? [YES] or [NO]: ";
@@ -481,7 +536,12 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
     }
   }
 }
-// Displays all books borrowed by a certain member
+
+/*
+  Displays all books borrowed by a member
+  @param librarian reference to Librarian instance utilized throughout system
+  @param memberList list of all members stored in the system
+*/
 void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList){
   std::string memberIdStr;
   int memberId;
@@ -489,17 +549,19 @@ void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList)
   std::regex integerPattern("[0-9]+");
   bool valid = false;
   std::string opt;
+
+  // If there are no members then the function terminates
   if(memberList->size() <= 0){
     std::cout << "There are no members in the system currently\n\n";
     return;
   }
-  // Loops until data is valid
+
+  // Allows for repeated execution until stopped by the user
   while(!valid){
-    // Asks the user to enter the id of the member to display the loaned books of the member
+    // Asks the user to enter the id of the member to display the loaned books of the member. Ensures input is an integer and id exists in memberList
     while(!memberIdValid){
       std::cout << "Please enter the ID # of the member: ";
       std::cin >> memberIdStr;
-      // If the input is not an integer then an error message is displayed and user is reprompted for input
       if(!std::regex_match(memberIdStr, integerPattern)){
         std::cout << "ID # must be an integer\n\n";
       }else{
@@ -536,6 +598,11 @@ void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList)
     }
   }
 }
+
+/*
+  Main function
+  @return int status code
+*/
 int main(){
   // Gets the file path of the csv provided in the initialize() function
   std::string bookFilePath = initialize();
@@ -568,5 +635,5 @@ int main(){
         active = false;
       }
   }
-
+  return 0;
 }

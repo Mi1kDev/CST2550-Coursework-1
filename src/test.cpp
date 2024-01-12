@@ -2,13 +2,17 @@
 test.cpp
 Author: M00829986
 Created: 10/1/2024
-Updated: 1/12/2024
+Updated: 12/1/2024
 */
 #define CATCH_CONFIG_MAIN
+
 #include "catch.hpp"
-#include "classes.h"
+#include "person.h"
+#include "book.h"
+#include "member.h"
+#include "librarian.h"
 
-
+// Test case for the creation of a Person class
 TEST_CASE("Person Construction", "[person_created]")
 {
   Person p1;
@@ -20,6 +24,7 @@ TEST_CASE("Person Construction", "[person_created]")
   REQUIRE(p1.getEmail() == "ja@yahoo.co.uk");
 }
 
+// Test case for the creation of a Librarian class
 TEST_CASE("Librarian Construction", "[librarian_created]")
 {
   Librarian l1(0, "Johnny", "123 Court Way", "johnny@yahoo.com", 200);
@@ -30,6 +35,7 @@ TEST_CASE("Librarian Construction", "[librarian_created]")
   REQUIRE(l1.getSalary() == 200);
 }
 
+// Test case for the creation of a Book class
 TEST_CASE("Book Construction", "[book_created]")
 {
   Book b1(0, "Goldilocks", "John", "Arbuckle");
@@ -46,6 +52,7 @@ TEST_CASE("Book Construction", "[book_created]")
   REQUIRE(b1.getDueDate().year == dueDate.year);
 }
 
+// Test case for the creation of a Member class
 TEST_CASE("Member Construction", "[member_construction]")
 {
   Member m1(0, "John", "123 Mayday Way", "john@may.com");
