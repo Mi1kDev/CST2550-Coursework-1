@@ -11,6 +11,8 @@
 #include <vector>
 #include <regex>
 
+void clearScreen();
+
 // Reads data from a provided csv file and creates a list of books using the provided data
 std::vector<Book*> loadBooks(std::string filepath){
   // Initialization of book vector
@@ -85,8 +87,11 @@ std::vector<Book*> loadBooks(std::string filepath){
   }
   std::cout << "Enter any key to continue: ";
   std::cin.ignore();
-  std::cout << "\033[2J\033[1;1H";
+  clearScreen();
   return books;
+}
+void clearScreen(){
+  std::cout << "\033[2J\033[1;1H";
 }
 // Allows the user to create a librarian class by providing necessary input
 Librarian  createLibrarian(){
@@ -191,10 +196,11 @@ int displayMenu(){
   std::cout << "2. Issue Book" << std::endl;
   std::cout << "3. Return Book" << std::endl;
   std::cout << "4: Display Books Borrowed by a Member" << std::endl;
-  std::cout << "5. Exit" << std::endl;
+  std::cout << "5: Clear Screen" << std::endl;
+  std::cout << "6. Exit" << std::endl;
 
   std::string selection;
-  std::regex integerPattern("[1-5]{1}");
+  std::regex integerPattern("[1-6]{1}");
   // Asks the user to select an option (function) to execute
   while(true){
     std::cout << "Please select an option: ";
@@ -285,14 +291,61 @@ void addMember(Librarian* librarian, std::vector<Member*>* memberList){
   }
 }
 
-void returnBook(Librarian* librarian, std::vector<Member *>* memberList, std::vector<Book*>* bookList){
+bool findIdMember(std::vector<Member*>* memberList, int id){
+  for(int i = 0; i < memberList->size(); i++){
+    if(id == stoi((*memberList)[i]->getMemberId())){
+      return true;
+    }
+  }
+  return false;
+}
+
+bool findBookId(std::vector<Book*>* bookList, int id){
+  for(int i = 0; i < bookList->size(); i++){
+    if(id == stoi((*bookList)[i]->getBookId())){
+      return true;
+    }
+  }
+  return false;
+}
+
+bool inputReprompt(){
+  std::string select;
+  bool confirmation = false;
+  while(!confirmation){
+    std:: cout << "The provided id number was not found." << std::endl;
+    std::cout << "Would you like to enter another id? [YES] or [NO]: ";
+    std::cin >> select;
+    if(select == "YES"){
+      confirmation = true;
+      return confirmation;
+    }else if(select == "NO"){
+      return confirmation;
+    }else{
+      std::cout << "Invalid Option selected \n\n";
+    }
+  }
+  return confirmation;
+}
+
+void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   std::cout << std::endl;
   bool continueReturning = true;
   bool memberIdValid = false, bookIdValid = false, optionSelected;
   std::regex integerPattern("[0-9]+");
   std::string memberContinue, memberIdStr, bookIdStr;
   std::string option;
+  std::string select;
   int memberId, bookId;
+
+  if(memberList->size() <= 0){
+    std::cout << "There are currently no members in the system, therefore books cannot be returned\n\n";
+    return;
+  }
+  if(bookList->size() <= 0){
+    std::cout << "No books available.\n";
+    return;
+  }
 
   while(continueReturning){
     while(!memberIdValid){
@@ -300,9 +353,16 @@ void returnBook(Librarian* librarian, std::vector<Member *>* memberList, std::ve
       std::cin >> memberIdStr;
       if(!std::regex_match(memberIdStr, integerPattern)){
         std::cout << "ID must be an integer\n\n";
+
       }else{
         memberId = stoi(memberIdStr);
-        memberIdValid = true;
+        if(findIdMember(memberList, memberId)){
+          memberIdValid = true;
+        }else{
+          if(!inputReprompt()){
+            return;
+          }
+        }
       }
     }
     while(!bookIdValid){
@@ -312,10 +372,15 @@ void returnBook(Librarian* librarian, std::vector<Member *>* memberList, std::ve
         std::cout << "ID must be an integer\n\n";
       }else{
         bookId = stoi(bookIdStr);
-        bookIdValid = true;
+        if(findBookId(bookList, bookId)){
+          bookIdValid = true;
+        }else{
+          if(!inputReprompt()){
+            return;
+          }
+        }
       }
     }
-    librarian->calcFine(memberId, memberList);
     librarian->returnBook(memberId, bookId, memberList, bookList);
     optionSelected = false;
     while(!optionSelected){
@@ -343,10 +408,18 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
   bool valid = false;
   bool bookIdValid = false, memberIdValid = false;
   std::cout << std::endl;
+  if(memberList->size() <= 0){
+    std::cout << "There are currently no members in the system, therefore books cannot be issued\n\n";
+    return;
+  }
+  if(bookList->size() <= 0){
+    std::cout << "No books available to be issued.\n\n";
+    return;
+  }
   // Loops until all inputs are validated
   while(!valid){
     // Asks the user to enter the member id of the member the book is being issued to
-    while(!bookIdValid){
+    while(!memberIdValid){
       std::cout << "Please enter the member id the book is being issued to: ";
       std::cin >> memberIdStr;
       // If the input is not an integer then an error message is displayed and the user is reprompted for input
@@ -355,11 +428,17 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
       }else{
         // Converts the input into an integer value
         memberId = stoi(memberIdStr);
-        bookIdValid = true;
+        if(findIdMember(memberList, memberId)){
+          memberIdValid = true;
+        }else{
+          if(!inputReprompt()){
+            return;
+          }
+        }
       }
     }
     // Asks the user to enter the if og the book that is to be issued
-    while(!memberIdValid){
+    while(!bookIdValid){
       std::cout << "Please enter the book id of the book being issued: ";
       std::cin >> bookIdStr;
       // If the input is an integer then an error message is displayed and the user is reprompted for input
@@ -368,7 +447,13 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
       }else{
         // Converts the input into an integer value
         bookId = stoi(bookIdStr);
-        memberIdValid = true;
+        if(findBookId(bookList, bookId)){
+          bookIdValid = true;
+        }else{
+          if(!inputReprompt()){
+            return;
+          }
+        }
       }
     }
     // Executes the issueBook method of the librarian class
@@ -404,6 +489,10 @@ void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList)
   std::regex integerPattern("[0-9]+");
   bool valid = false;
   std::string opt;
+  if(memberList->size() <= 0){
+    std::cout << "There are no members in the system currently\n\n";
+    return;
+  }
   // Loops until data is valid
   while(!valid){
     // Asks the user to enter the id of the member to display the loaned books of the member
@@ -415,7 +504,14 @@ void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList)
         std::cout << "ID # must be an integer\n\n";
       }else{
         memberId = stoi(memberIdStr);
-        memberIdValid = true;
+        if(findIdMember(memberList, memberId)){
+          memberIdValid = true;
+        }else{
+          if(!inputReprompt()){
+            return;
+          }
+        }
+
       }
     }
     // Calls the displayBorrowedBooks method of the librarian class
@@ -466,6 +562,8 @@ int main(){
       }else if(opt == 4){
         displayMembersBooks(&librarian, &memberList);
       }else if(opt == 5){
+          clearScreen();
+      }else if(opt == 6){
         std::cout << "Exiting..." << std::endl;
         active = false;
       }

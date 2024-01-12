@@ -114,19 +114,12 @@ void Librarian::addMember(std::vector<Member*>* memberList){
 }
 void Librarian::issueBook(int memberId, int bookId, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   int foundMemberIdx, foundBookIdx;
-  if(memberList->size() <= 0){
-    std::cout << "No members available to issue books to.\n";
-    return;
-  }
-  if(bookList->size() <= 0){
-    std::cout << "No books availableto be issued.\n";
-    return;
-  }
+
   for(int i = 0; i < memberList->size(); i++){
     std::vector<Book> borrowedBooks = (*memberList)[i]->getBooksBorrowed();
     for(int j = 0; j < borrowedBooks.size(); j++){
       if(stoi(borrowedBooks[j].getBookId()) == bookId){
-        std::cout << "This book is already on loan to someone else.\n";
+        std::cout << "This book is already on loan.\n";
         return;
       }
     }
@@ -136,44 +129,29 @@ void Librarian::issueBook(int memberId, int bookId, std::vector<Member*>* member
       foundMemberIdx = i;
       break;
     }
-    if(i == memberList->size() - 1){
-      std::cout << "The provided member id {"<< memberId <<"} is not present.\n";
-      return;
-    }
   }
   for(int i = 0; i < bookList->size(); i++){
     if(bookId == stoi((*bookList)[i]->getBookId())){
       foundBookIdx = i;
       break;
     }
-    if(i == bookList->size() - 1){
-      std::cout << "The provided book id {"<< bookId << "} is not present.\n";
-      return;
-    }
   }
   Book issuedBook = *(*bookList)[foundBookIdx];
-  std::time_t t = std::time(0);
-  std::tm* now = std::localtime(&t);
+  std::time_t currentTime = std::time(0);
+  std::tm* now = std::localtime(&currentTime);
   Date issueDate, dueDate;
-  int month[13] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  const int DAY_IN_SECONDS = 86400;
+  const int DUE_LIMIT = -40;
   issueDate.year = (now->tm_year + 1900);
   issueDate.month = (now->tm_mon + 1);
   issueDate.day = (now->tm_mday);
-  issueDate.timestamp = t;
-  dueDate.day = issueDate.day;
-  dueDate.year = issueDate.year;
-  dueDate.month = issueDate.month;
-  int dayInSeconds = 86400;
-  int timeLimit = -3;
-  dueDate.timestamp = t + (dayInSeconds * timeLimit);
-  if(dueDate.day > month[issueDate.month - 1]){
-    dueDate.day = dueDate.day % month[issueDate.month - 1];
-    dueDate.month++;
-    if(dueDate.month > 12){
-      dueDate.month = dueDate.month % 12;
-      dueDate.year++;
-    }
-  }
+  issueDate.timestamp = currentTime;
+  std::time_t dueTime = currentTime + (DAY_IN_SECONDS * DUE_LIMIT);
+  std::tm* due = std::localtime(&dueTime);
+  dueDate.year = (due->tm_year + 1900);
+  dueDate.month = (due->tm_mon + 1);
+  dueDate.day = (due->tm_mday);
+  dueDate.timestamp = dueTime;
   issuedBook.borrowBook((*memberList)[foundMemberIdx], dueDate);
   (*memberList)[foundMemberIdx]->setBooksBorrowed(issuedBook);
 
@@ -190,22 +168,11 @@ void Librarian::issueBook(int memberId, int bookId, std::vector<Member*>* member
 }
 void Librarian::returnBook(int memberId, int bookId, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   int foundBookIdx, foundMemberIdx;
-  if(memberList->size() <= 0){
-    std::cout << "No members available to issue books to.\n";
-    return;
-  }
-  if(bookList->size() <= 0){
-    std::cout << "No books availableto be issued.\n";
-    return;
-  }
+
   for(int i = 0; i < memberList->size(); i++){
     if(memberId == stoi((*memberList)[i]->getMemberId())){
       foundMemberIdx = i;
       break;
-    }
-    if(i == memberList->size() - 1){
-      std::cout << "The provided member id {"<< memberId <<"} is not present.\n";
-      return;
     }
   }
   for(int i = 0; i < bookList->size(); i++){
@@ -213,30 +180,32 @@ void Librarian::returnBook(int memberId, int bookId, std::vector<Member*>* membe
       foundBookIdx = i;
       break;
     }
-    if(i == bookList->size() - 1){
-      std::cout << "The provided book id {"<< bookId << "} is not present.\n";
+  }
+  std::vector<Book> loanedBooks = (*memberList)[foundMemberIdx]->getBooksBorrowed();
+  if(loanedBooks.size() <= 0){
+    std::cout << "This member has no books out on loan" << std::endl;
+    return;
+  }
+  for(int i = 0; i < loanedBooks.size(); i++){
+    if(stoi(loanedBooks[i].getBookId()) == bookId){
+      this->calcFine(memberId, memberList);
+      (*bookList)[foundBookIdx]->returnBook();
+      Book terminatorBook(bookId, "END", "END", "END");
+      (*memberList)[foundMemberIdx]->setBooksBorrowed(terminatorBook);
       return;
     }
   }
-  (*bookList)[foundBookIdx]->returnBook();
-  Book terminatorBook(bookId, "END", "END", "END");
-  (*memberList)[foundMemberIdx]->setBooksBorrowed(terminatorBook);
+  std::cout << "The member does not have the book with id#: " << bookId << " out on loan" << std::endl;
+
+
 }
 void Librarian::displayBorrowedBooks(int memberId, std::vector<Member*>* memberList){
   int memberIdx;
   std::cout << std::endl;
-  if(memberList->size() <= 0){
-    std::cout << "No members available yet\n";
-    return;
-  }
   for(int i = 0; i < memberList->size(); i++){
     if(std::to_string(memberId) == (*memberList)[i]->getMemberId()){
       memberIdx = i;
       break;
-    }
-    if(i == memberList->size() - 1){
-      std::cout <<  "The provided member id {" << memberId << "} does not exist.";
-      return;
     }
   }
 
@@ -255,24 +224,18 @@ void Librarian::displayBorrowedBooks(int memberId, std::vector<Member*>* memberL
     std::cout << "AUTHOR NAME: " << loanedBooks[i].getAuthorFirstName() << " " << loanedBooks[i].getAuthorLastName() << std::endl;
     Date dueDate = loanedBooks[i].getDueDate();
     std::cout << "DUE DATE (dd-mm-yyyy): " << dueDate.day << "-" << dueDate.month << "-" << dueDate.year << std::endl;
+    std::cout << std::endl;
   }
 
 }
 void Librarian::calcFine(int memberId, std::vector<Member*>* memberList){
   int foundIdx;
   std::cout << std::endl;
-  if(memberList->size() <= 0){
-    std::cout << "No members available yet\n";
-    return;
-  }
+
   for(int i = 0; i < memberList->size(); i++){
     if(std::to_string(memberId) == (*memberList)[i]->getMemberId()){
       foundIdx = i;
       break;
-    }
-    if(i == memberList->size() - 1){
-      std::cout << "The provided member ID {" << memberId << "} does not exist\n";
-      return;
     }
   }
 
@@ -282,30 +245,28 @@ void Librarian::calcFine(int memberId, std::vector<Member*>* memberList){
     return;
   }
   int totalFines = 0;
-  int secondsPerDay = 86400;
-  std::time_t t = std::time(0);
-  for(int i = 0; i < loanedBooks.size(); i++){
-      std::time_t t2 = loanedBooks[i].getDueDate().timestamp;
-      double timeDiff = std::difftime(t, t2) / secondsPerDay;
-      if(timeDiff > 0){
-        std::cout << "Book ID#: " << loanedBooks[i].getBookId() << std::endl;
-        std::cout << "Book NAME: " << loanedBooks[i].getBookName() << std::endl;
-        int fines = 1 * (int)timeDiff;
-        std::cout << "FINES: £" << fines << std::endl;
-        totalFines += fines;
-      }
+  const int DAY_IN_SECONDS = 86400;
+  std::time_t currentTime = std::time(0);
+  if(loanedBooks.size() > 0){
+    std::cout << "[Overdue Books]" << std::endl;
+    for(int i = 0; i < loanedBooks.size(); i++){
+        std::time_t dueTime = loanedBooks[i].getDueDate().timestamp;
+        double timeDiff = std::difftime(currentTime, dueTime) / DAY_IN_SECONDS;
+        if(timeDiff > 0){
+          std::cout << "BOOK ID#: " << loanedBooks[i].getBookId() << std::endl;
+          std::cout << "BOOK NAME: " << loanedBooks[i].getBookName() << std::endl;
+          std::cout << "OVERDUE BY: " << (int)timeDiff << " days" << std::endl;
+          int fines = 1 * (int)timeDiff;
+          std::cout << "FINES INCURRED: £" << fines << std::endl;
+          totalFines += fines;
+          std::cout << std::endl;
+        }
+    }
   }
   if(totalFines == 0){
     std::cout << "No calculated fines as there are no overdue and outstanding books\n";
   }else{
     std::cout << "TOTAL FINES: £" << totalFines << std::endl;
-    std::time_t t = std::time(0);
-    std::tm* now = std::localtime(&t);
-    Date currentDate;
-    currentDate.day = (now->tm_mday);
-    currentDate.month = (now->tm_mon + 1);
-    currentDate.year = (now->tm_year + 1900);
-    std::cout << "Book returned on (dd-mm-yyyy): " << currentDate.day << "-" << currentDate.month << "-" << currentDate.year << std::endl;
   }
 
 
@@ -379,6 +340,13 @@ void Book::setDueDate(Date dueDate){
 }
 void Book::returnBook(){
   this->borrower = nullptr;
+  std::time_t currentTime = std::time(0);
+  std::tm* now = std::localtime(&currentTime);
+  Date currentDate;
+  currentDate.year = (now->tm_year + 1900);
+  currentDate.month = (now->tm_mon + 1);
+  currentDate.day = (now->tm_mday);
+  std::cout << this->getBookName() << " returned on (dd-mm-yyyy): " << currentDate.day << "-" << currentDate.month << "-" << currentDate.year << std::endl;
 }
 void Book::borrowBook(Member* borrower, Date dueDate){
   this->borrower = borrower;
