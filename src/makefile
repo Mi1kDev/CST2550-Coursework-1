@@ -1,3 +1,8 @@
+# makefile
+# Author: M00829986
+# Created: 28/12/2024
+# Updated: 1/12/2024
+
 CC = g++
 
 main: main.o classes.o

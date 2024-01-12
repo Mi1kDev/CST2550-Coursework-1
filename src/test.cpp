@@ -1,3 +1,9 @@
+/*
+test.cpp
+Author: M00829986
+Created: 10/1/2024
+Updated: 1/12/2024
+*/
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "classes.h"

@@ -1,3 +1,9 @@
+/*
+classes.cpp
+Author: M00829986
+Created: 28/12/2024
+Updated: 1/12/2024
+*/
 #include "classes.h"
 #include <string>
 #include <regex>
@@ -34,7 +40,7 @@ Librarian::Librarian(int staffId, std::string name, std::string address, std::st
   this->setSalary(salary);
 }
 // Edited from UML
-void Librarian::addMember(std::vector<Member *> *memberList){
+void Librarian::addMember(std::vector<Member*>* memberList){
   std::cout << "[ Enter the information of the new member ]\n";
 
   std::string mName, mAddress, mEmail, opt;
@@ -106,7 +112,7 @@ void Librarian::addMember(std::vector<Member *> *memberList){
   Member * member = new Member(mId, mName, mAddress, mEmail);
   memberList->push_back(member);
 }
-void Librarian::issueBook(int memberId, int bookId, std::vector<Member *> *memberList, std::vector<Book *> *bookList){
+void Librarian::issueBook(int memberId, int bookId, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   int foundMemberIdx, foundBookIdx;
   if(memberList->size() <= 0){
     std::cout << "No members available to issue books to.\n";
@@ -182,7 +188,7 @@ void Librarian::issueBook(int memberId, int bookId, std::vector<Member *> *membe
   << std::endl << "Due by (dd-mm-yyyy): " << dueDate.day << "-" << dueDate.month << "-" << dueDate.year;
   std::cout << std::endl;
 }
-void Librarian::returnBook(int memberId, int bookId, std::vector<Member *> *memberList, std::vector<Book *> *bookList){
+void Librarian::returnBook(int memberId, int bookId, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   int foundBookIdx, foundMemberIdx;
   if(memberList->size() <= 0){
     std::cout << "No members available to issue books to.\n";
@@ -216,7 +222,7 @@ void Librarian::returnBook(int memberId, int bookId, std::vector<Member *> *memb
   Book terminatorBook(bookId, "END", "END", "END");
   (*memberList)[foundMemberIdx]->setBooksBorrowed(terminatorBook);
 }
-void Librarian::displayBorrowedBooks(int memberId, std::vector<Member *> *memberList){
+void Librarian::displayBorrowedBooks(int memberId, std::vector<Member*>* memberList){
   int memberIdx;
   std::cout << std::endl;
   if(memberList->size() <= 0){
@@ -252,7 +258,7 @@ void Librarian::displayBorrowedBooks(int memberId, std::vector<Member *> *member
   }
 
 }
-void Librarian::calcFine(int memberId, std::vector<Member *> *memberList){
+void Librarian::calcFine(int memberId, std::vector<Member*>* memberList){
   int foundIdx;
   std::cout << std::endl;
   if(memberList->size() <= 0){

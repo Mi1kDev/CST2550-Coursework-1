@@ -1,7 +1,7 @@
 /*
   main.cpp
   Author: M00829986
-  Created:
+  Created: 28/12/2024
   Updated: 1/11/2024
 */
 #include "classes.h"
@@ -12,7 +12,7 @@
 #include <regex>
 
 // Reads data from a provided csv file and creates a list of books using the provided data
-std::vector<Book *> loadBooks(std::string filepath){
+std::vector<Book*> loadBooks(std::string filepath){
   // Initialization of book vector
   std::vector<Book *> books;
   std::string content;
@@ -255,7 +255,7 @@ std::string initialize(){
   return "";
 }
 // Adds a member to the member list
-void addMember(Librarian *librarian, std::vector<Member *> *memberList){
+void addMember(Librarian* librarian, std::vector<Member*>* memberList){
   std::cout << std::endl;
   bool continueAdding = true, optionSelected;
   std::string memberContinue;
@@ -285,7 +285,7 @@ void addMember(Librarian *librarian, std::vector<Member *> *memberList){
   }
 }
 
-void returnBook(Librarian *librarian, std::vector<Member *> *memberList, std::vector<Book *> *bookList){
+void returnBook(Librarian* librarian, std::vector<Member *>* memberList, std::vector<Book*>* bookList){
   std::cout << std::endl;
   bool continueReturning = true;
   bool memberIdValid = false, bookIdValid = false, optionSelected;
@@ -336,7 +336,7 @@ void returnBook(Librarian *librarian, std::vector<Member *> *memberList, std::ve
   }
 }
 // Issues a book to a member
-void bookIssuing(Librarian *librarian, std::vector<Member *> *memberList, std::vector<Book *> *bookList){
+void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   int memberId, bookId;
   std::string memberIdStr, bookIdStr;
   std::regex integerPattern("[0-9]+");
@@ -397,7 +397,7 @@ void bookIssuing(Librarian *librarian, std::vector<Member *> *memberList, std::v
   }
 }
 // Displays all books borrowed by a certain member
-void displayMembersBooks(Librarian * librarian, std::vector<Member *> *memberList){
+void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList){
   std::string memberIdStr;
   int memberId;
   bool memberIdValid = false;
