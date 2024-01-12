@@ -31,6 +31,9 @@ void Librarian::addMember(std::vector<Member*>* memberList){
   std::cout << "[ Enter the information of the new member ]\n";
 
   std::string mName, mAddress, mEmail, opt;
+  std::regex namePattern("[a-zA-Z -]+");
+  std::regex addressPattern("[a-zA-Z0-9 -]+");
+  std::regex emailPattern("[a-zA-Z0-9](.+)(@){1}[a-zA-Z0-9](.+)((.){1}[a-zA-Z](.+))(.+)");
   bool validated = false;
   bool nameValid = false, addressValid = false, emailValid = false;
 
@@ -40,31 +43,28 @@ void Librarian::addMember(std::vector<Member*>* memberList){
     while(!nameValid){
       std::cout << "Enter Name: ";
       std::getline(std::cin, mName);
-      if(mName.length() > 0){
+      if(std::regex_match(mName, namePattern)){
         nameValid = true;
       }else{
-        std::cout << "Name must contain at least a single character\n\n";
+        std::cout << "Name must consist of alphabetical characters\n\n";
       }
     }
     // Ensures that the user enters at least a single character for an address
     while(!addressValid){
       std::cout << "Enter Address: ";
       std::getline(std::cin, mAddress);
-      if(mAddress.length() > 0){
+      if(std::regex_match(mAddress, addressPattern)){
         addressValid = true;
       }else{
-        std::cout << "Address must contain at least a single character\n\n";
+        std::cout << "Address must consist of alphanumeric characters\n\n";
       }
     }
     // Ensures that the user enters an email matching the proper structure of an email address
     while(!emailValid){
       std::cout << "Enter Email: ";
       std::getline(std::cin, mEmail);
-
-      //Pattern  might not fully  work
-      std::regex emailPattern("[a-zA-Z0-9](.+)(@){1}[a-zA-Z0-9](.+)((.){1}[a-zA-Z](.+))(.+)");
       if(!regex_match(mEmail, emailPattern)){
-        std::cout << "Invalid format for email\nReprompting...\n\n";
+        std::cout << "Invalid format for email\n\n";
       }else{
         emailValid = true;
       }
@@ -72,10 +72,10 @@ void Librarian::addMember(std::vector<Member*>* memberList){
     // Displays user details so the user can determine if the information is correct
     std::cout << std::endl;
     std::cout << "The member's details are:\n";
-    std::cout << "Name: " << mName << std::endl;
-    std::cout << "Address: " << mAddress << std::endl;
-    std::cout << "Email: " << mEmail << std::endl;
-
+    std::cout << "NAME: " << mName << std::endl;
+    std::cout << "ADDRESS: " << mAddress << std::endl;
+    std::cout << "EMAIL: " << mEmail << std::endl;
+    std::cout << std::endl;
     bool optionSelected = false;
     // Asks the user for input until one of the provided options is selected
     while(!optionSelected){
@@ -107,6 +107,7 @@ void Librarian::addMember(std::vector<Member*>* memberList){
   std::cout << "NAME: " << mName << std::endl;
   std::cout << "ADDRESS: " << mAddress << std::endl;
   std::cout << "EMAIL: " << mEmail << std::endl;
+  std::cout << std::endl;
   Member * member = new Member(mId, mName, mAddress, mEmail);
   memberList->push_back(member);
 }
