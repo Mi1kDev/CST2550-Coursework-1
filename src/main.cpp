@@ -79,7 +79,7 @@ bool inputReprompt(){
   while(!confirmation){
     std:: cout << "The provided id number was not found." << std::endl;
     std::cout << "Would you like to enter another id? [YES] or [NO]: ";
-    std::cin >> select;
+    std::getline(std::cin, select);
     if(select == "YES"){
       confirmation = true;
       std::cout << std::endl;
@@ -102,7 +102,7 @@ void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList)
   std::string memberIdStr;
   int memberId;
   bool memberIdValid = false;
-  std::regex integerPattern("[0-9]+");
+  std::regex integerPattern("[0-9]+$");
   bool valid = false;
   std::string opt;
 
@@ -119,7 +119,7 @@ void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList)
     // Asks the user to enter the id of the member to display the loaned books of the member. Ensures input is an integer and id exists in memberList
     while(!memberIdValid){
       std::cout << "Please enter the ID # of the member: ";
-      std::cin >> memberIdStr;
+      std::getline(std::cin, memberIdStr);
       if(!std::regex_match(memberIdStr, integerPattern)){
         std::cout << "ID # must be an integer\n\n";
       }else{
@@ -141,7 +141,7 @@ void displayMembersBooks(Librarian* librarian, std::vector<Member*>* memberList)
     // Asks the user whether they would like to view the loaned books of another member
     while(!optionSelected){
       std::cout << "Would you like to search another ID #? [YES] or [NO]: ";
-      std::cin >> opt;
+      std::getline(std::cin, opt);
       // If the user selects yes then the loop continues and the user is asked to enter a member id once more
       if(opt == "YES"){
         std::cout << std::endl;
@@ -168,7 +168,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
   std::cout << std::endl;
   bool continueReturning = true;
   bool memberIdValid = false, bookIdValid = false, optionSelected;
-  std::regex integerPattern("[0-9]+");
+  std::regex integerPattern("[0-9]+$");
   std::string memberContinue, memberIdStr, bookIdStr;
   std::string option;
   std::string select;
@@ -189,7 +189,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
     // Ensures the memberId entered is of valid format and exists in the list of members
     while(!memberIdValid){
       std::cout << "Please enter the id number of the member returning a book: ";
-      std::cin >> memberIdStr;
+      std::getline(std::cin, memberIdStr);
       if(!std::regex_match(memberIdStr, integerPattern)){
         std::cout << "ID must be an integer\n\n";
 
@@ -207,7 +207,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
     // Ensures the bookId entered is of valid format and exists in the list of books
     while(!bookIdValid){
       std::cout << "Please enter the id number of the book being returned: ";
-      std::cin >> bookIdStr;
+      std::getline(std::cin, bookIdStr);
       if(!std::regex_match(bookIdStr, integerPattern)){
         std::cout << "ID must be an integer\n\n";
       }else{
@@ -228,7 +228,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
     // Provides the user with the option to continue returning books
     while(!optionSelected){
       std::cout << "Would you like to return another book? [YES] or [NO]: ";
-      std::cin >> option;
+      std::getline(std::cin, option);
       if(option == "YES"){
         std::cout << std::endl;
         optionSelected = true;
@@ -253,7 +253,7 @@ void returnBook(Librarian* librarian, std::vector<Member*>* memberList, std::vec
 void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::vector<Book*>* bookList){
   int memberId, bookId;
   std::string memberIdStr, bookIdStr;
-  std::regex integerPattern("[0-9]+");
+  std::regex integerPattern("[0-9]+$");
   bool valid = false;
   bool bookIdValid = false, memberIdValid = false;
   std::cout << std::endl;
@@ -273,7 +273,7 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
     // Asks the user to enter the member id of the member the book is being issued to. Ensures the input is of valid format and that the memberId exists in the memberList
     while(!memberIdValid){
       std::cout << "Please enter the member id the book is being issued to: ";
-      std::cin >> memberIdStr;
+      std::getline(std::cin, memberIdStr);
       if(!std::regex_match(memberIdStr, integerPattern)){
         std::cout << "ID must be an integer\n\n";
       }else{
@@ -290,7 +290,7 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
     // Asks the user to enter the id of the book being issued. Ensures the input is of valid format and that the bookId exists in the bookList
     while(!bookIdValid){
       std::cout << "Please enter the book id of the book being issued: ";
-      std::cin >> bookIdStr;
+      std::getline(std::cin, bookIdStr);
       if(!std::regex_match(bookIdStr, integerPattern)){
         std::cout << "ID must be an integer\n\n";
       }else{
@@ -314,7 +314,7 @@ void bookIssuing(Librarian *librarian, std::vector<Member*>* memberList, std::ve
     while(!optionSelected){
       std::string opt;
       std::cout << "Would you like to issue another book? [YES] or [NO]: ";
-      std::cin >> opt;
+      std::getline(std::cin, opt);
       // If the user enters yes then the loop continues and the uset is asked to enter data once more
       if(opt == "YES"){
         std::cout << std::endl;
@@ -349,8 +349,8 @@ void addMember(Librarian* librarian, std::vector<Member*>* memberList){
     // Asks the user to select either YES or NO, reprompts if given invalid input
     while(!optionSelected){
       std::cout << "Would you like to add another member? [YES] or [NO]: ";
-      std::cin >> memberContinue;
-      std::cin.ignore();
+      std::getline(std::cin, memberContinue);
+
       // If the user selects NO then the loop ends
       if(memberContinue == "NO"){
         continueAdding = false;
@@ -386,8 +386,7 @@ int displayMenu(){
   // Asks the user to select an option (function) to execute
   while(true){
     std::cout << "Please select an option: ";
-    std::cin >> selection;
-    std::cin.ignore();
+    std::getline(std::cin, selection);
     // If the selection is not an integer then an error is prompted and the user is asked for input once more
     if(!regex_match(selection, integerPattern)){
       std::cout << "Invalid selection made\n\n";
@@ -453,8 +452,7 @@ Librarian  createLibrarian(){
     // Checks that entered id is an integer
     while(!idValid){
       std::cout << "ID #: ";
-      std::cin >> staffIdStr;
-      std::cin.ignore();
+      std::getline(std::cin, staffIdStr);
       // If the input is not an integer then an error message is displayed
       if(!regex_match(staffIdStr, integerPattern)){
         std::cout << "Input must be an integer\n\n";
@@ -467,8 +465,7 @@ Librarian  createLibrarian(){
     // Checks that entered salary is an integer
     while(!salaryValid){
       std::cout << "Salary: ";
-      std::cin >> salaryStr;
-      std::cin.ignore();
+      std::getline(std::cin, salaryStr);
       if(!regex_match(salaryStr, integerPattern)){
         std::cout << "Input must be an integer \n\n";
       }else{
@@ -514,7 +511,7 @@ std::vector<Book*> loadBooks(std::string filepath){
   std::string content;
   std::ifstream BookList;
   // Pattern to check whether a section of string is within quotation marks
-  std::regex quotePattern(R"("+[a-zA-Z0-9, ]+")");
+  std::regex quotePattern(R"("+.+")");
   std::smatch m;
   BookList.open(filepath);
   if(BookList.is_open()){
@@ -569,7 +566,8 @@ std::vector<Book*> loadBooks(std::string filepath){
     std::cout << b->getBookId() << ": " << b->getBookName() << std::endl;
   }
   std::cout << "Enter any key to continue: ";
-  std::cin.ignore();
+  std::string dump;
+  std::getline(std::cin, dump);
   clearScreen();
   return books;
 }
