@@ -217,7 +217,7 @@ void Librarian::returnBook(int memberId, int bookId, std::vector<Member*>* membe
       this->calcFine(memberId, memberList);
       (*bookList)[foundBookIdx]->returnBook();
       // A special book class that when passed to setBooksBorrowed removes a book from the list of books on loan
-      Book terminatorBook(bookId, "END", "END", "END");
+      Book terminatorBook(bookId, "", "", "");
       (*memberList)[foundMemberIdx]->setBooksBorrowed(terminatorBook);
       return;
     }

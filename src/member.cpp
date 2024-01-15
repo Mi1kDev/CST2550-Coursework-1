@@ -43,7 +43,7 @@ std::vector<Book> Member::getBooksBorrowed(){
 */
 void Member::setBooksBorrowed(Book book){
   // If the provided book argument is that of the terminatorBook (Book(id, "END", "END", "END"))
-  if(book.getBookName() == "END" && book.getAuthorLastName() == "END" && book.getAuthorLastName() == "END"){
+  if(book.getBookName() == "" && book.getAuthorLastName() == "" && book.getAuthorLastName() == ""){
     // Finds the book to remove from the booksLoaned list and removes it
     for(int i = 0; i < this->booksLoaned.size(); i++){
       if(this->booksLoaned[i].getBookId() == book.getBookId()){
